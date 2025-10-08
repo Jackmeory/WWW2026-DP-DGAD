@@ -1,6 +1,6 @@
 # DP-DGAD: A Generalist Dynamic Graph Anomaly Detector with Dynamic Prototypes
 This repository is the official implementation of paper "DP-DGAD: A Generalist Dynamic Graph Anomaly Detector with Dynamic Prototypes"
-	![](https://github.com/Jackmeory/KDD2026-DP-DGAD/blob/main/pipeline.png)
+	![](https://github.com/Jackmeory/KDD2026-DP-DGAD/blob/main/model.png)
 
 ## Requirements
 To install requirements:
