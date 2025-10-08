@@ -178,13 +178,18 @@ def main():
 
     backbone = DGG(GNN, transformer, transformer_d)
     model = backbone.to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
+    
+    # Initialize optimizer with empty parameter list (will be updated after loading checkpoint)
+    optimizer = torch.optim.Adam([], lr=config.learning_rate)
     
     # Load pretrained model
     # Modified loading code
     checkpoint = torch.load(pretrained_model_path, map_location=device, weights_only=False)
     model.load_state_dict(checkpoint['model_state_dict'])
 
+    # Freeze all model parameters
+    for param in model.parameters():
+        param.requires_grad = False
     
     # Load prototype buffer from checkpoint
     prototype_buffer = checkpoint.get('prototype_buffer', [])
@@ -209,7 +214,18 @@ def main():
     normal_cov = checkpoint.get('normal_cov', torch.eye(args.input_dim)).to(device)
     abnormal_cov = checkpoint.get('abnormal_cov', torch.eye(args.input_dim)).to(device)
     abnormal_mean = checkpoint.get('abnormal_mean', torch.zeros(args.input_dim)).to(device)
+    
+    # Make prototype statistics trainable
+    normal_mean.requires_grad = True
+    normal_cov.requires_grad = True
+    abnormal_mean.requires_grad = True
+    abnormal_cov.requires_grad = True
+    
+    # Update optimizer to only optimize prototype statistics
+    optimizer = torch.optim.Adam([normal_mean, normal_cov, abnormal_mean, abnormal_cov], lr=config.learning_rate)
+    
     print(f"Target dataset: {config.target_datasets}")
+    print("Model parameters frozen, only prototype statistics will be updated during training")
 
     
     # Get all indices for target dataset
